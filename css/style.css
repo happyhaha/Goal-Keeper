@@ -1,0 +1,12 @@
+body {
+  background: #000;
+  color: #333;
+  height: 100vh;
+  padding: 0;
+  margin: 0;
+  width: 100vw;
+  overflow: hidden;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
