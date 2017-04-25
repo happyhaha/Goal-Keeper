@@ -46,7 +46,11 @@ class Hands {
 	}
 
 	draw(){
-		this.game.ctx.drawImage(this.source,this.x,this.y, this.source.width, this.source.height);
+		this.game.ctx.save();
+		this.game.ctx.translate(this.x, this.y);
+		this.game.ctx.rotate(((this.x-this.game.canvas.width/2)/20)*(Math.PI/100));
+		this.game.ctx.drawImage(this.source,-this.source.width/2,-this.source.height/2, this.source.width, this.source.height);
+		this.game.ctx.restore();
 	} 
 }
 
@@ -64,7 +68,7 @@ class Ball {
 	}
 
 	getRandomX(){
-		return Math.floor(Math.random()*this.game.width);
+		return Math.floor(Math.random()*this.game.width-100);
 	}
 
 	showFirstScreen(){
@@ -72,7 +76,7 @@ class Ball {
 	}
 
 	getRandomY(){
-		return Math.floor(Math.random()*this.game.height);
+		return Math.floor(Math.random()*this.game.height-100);
 	}
 
 	startFly() {
@@ -112,13 +116,13 @@ class Ball {
 		image.src = path;
 		return image;
 	}
+	
 	draw(){
-		this.rotate++;
-		// this.game.ctx.rotate(this.rotate * Math.PI / 180);
-		// this.game.ctx.translate(this.x, this.y);
-		this.game.ctx.drawImage(this.source,this.x,this.y, this.size, this.size);
-		// this.game.ctx.translate(0,0);
-		// this.game.ctx.rotate(-(this.rotate * Math.PI / 180));
+		this.game.ctx.save();
+		this.game.ctx.translate(this.x, this.y);
+		this.game.ctx.rotate(this.size*(Math.PI/100));
+		this.game.ctx.drawImage(this.source,-this.size/2,-this.size/2, this.size, this.size);
+		this.game.ctx.restore();
 	}
 }
 
