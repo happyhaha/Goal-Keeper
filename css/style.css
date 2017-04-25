@@ -140,3 +140,25 @@ canvas {
   margin-top: 20px;
 }
 
+.notify {
+  align-self: center;
+}
+
+.message10 {
+  animation: shine 1s ease-out forwards;
+}
+
+.message5 {
+  animation: shine 1s ease-out forwards;
+}
+
+@keyframes shine {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-200px);
+  }
+}

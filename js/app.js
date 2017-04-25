@@ -55,6 +55,7 @@ class Hands {
 }
 
 class Ball {
+	
 	constructor(game){
 		this.game = game;
 		this.size = 0;
@@ -116,37 +117,13 @@ class Ball {
 		image.src = path;
 		return image;
 	}
-	
+
 	draw(){
 		this.game.ctx.save();
 		this.game.ctx.translate(this.x, this.y);
 		this.game.ctx.rotate(this.size*(Math.PI/100));
 		this.game.ctx.drawImage(this.source,-this.size/2,-this.size/2, this.size, this.size);
 		this.game.ctx.restore();
-	}
-}
-
-class Message {
-	constructor(game){
-		this.game = game;
-		this.x = game.ball.x;
-		this.y = game.ball.y;
-		this.source = this.load('images/10.png');
-		this.opacity = 0.5;
-		// this.game.ctx.globalAlpha = 0.2;
-	}
-
-	load(path){
-		let image = new Image();
-		image.src = path;
-		return image;
-	}
-
-	draw(){
-		this.opacity-=0.1;
-		this.game.ctx.globalAlpha = this.opacity;
-		this.game.ctx.drawImage(this.source,this.x,this.y, this.source.width, this.source.height);
-		this.game.ctx.globalAlpha = 1.0;
 	}
 }
 
@@ -160,7 +137,6 @@ class Game {
 		this.ball = new Ball(this);
 		this.hands = new Hands(this);
 		this.background = new Background(this);
-		this.message = new Message(this);
 		this.movement = false;
 		this.saves = 0;
 		this.saveStatus = false;
@@ -220,17 +196,8 @@ class Game {
 			if(this.movement) {
 				this.ball.move();
 				this.ball.draw();
-
-				// if(this.saveStatus) {
-				// 	let message = new Message(this);
-				// 	message.draw();
-				// 	if(message.opacity < 0){
-				// 		this.saveStatus = false;
-				// 		message = {};
-				// 	}
-				// }
+				this.hands.draw();
 			}
-			this.hands.draw();
 			this.collisions();	
 		},60/1000);
 	}
@@ -327,11 +294,17 @@ class Game {
 	}
 
 	saveAnimation5points(){
-
+		qs(".notify").innerHTML = '';
+			qs(".notify").innerHTML = `
+				<img src="images/5.png" alt="message" class="notify message5">
+			`;
 	}
 
 	saveAnimation10points(){
-		
+		qs(".notify").innerHTML = '';
+			qs(".notify").innerHTML = `
+				<img src="images/10.png" alt="message" class="notify message10">
+			`;
 	}
 
 	stopMovements(){
@@ -374,6 +347,7 @@ class Game {
 			this.ball.size < 121
 		){
 			// TODO: Счет +10
+			this.saveAnimation10points();
 			goal = false;
 			this.playChute();
 			this.saves+=10;
@@ -395,6 +369,7 @@ class Game {
 			this.ball.size > 121
 		){
 			// TODO: Счет +5
+			this.saveAnimation5points();
 			goal = false;
 			this.playChute();
 			this.saves+=5;
