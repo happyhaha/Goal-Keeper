@@ -1,12 +1,11 @@
 var qsa = q => document.querySelectorAll(q);
 var qs = q => document.querySelector(q);
 
-
 class Background {
 	constructor(game){
 		this.game = game;
 		this.source = this.load('images/stadium.png');
-		this.y = 0;
+		this.y = 0;	
 		this.x = 0;
 	}
 
@@ -60,10 +59,16 @@ class Ball {
 		this.x = this.game.canvas.width/2;
 		this.direction = 1;
 		this.energy = 0;
+		this.speed = 0.5;
+		this.rotate = 0;
 	}
 
 	getRandomX(){
 		return Math.floor(Math.random()*this.game.width);
+	}
+
+	showFirstScreen(){
+		
 	}
 
 	getRandomY(){
@@ -77,27 +82,26 @@ class Ball {
 		this.energy = 0;
 	}
 
-	movement(){
-		if(this.energy < 100) {
-			this.energy--;
-			this.x++;
-			this.y++;
-		} else {
-			if(this.energy == 100){
-				this.direction*=-1;
-				this.x++;
-				this.y++;
-			} else {
-				this.x++;
-				this.y--;
-			}
+	checkGameLevel(){
+		switch(this.game.level) {
+			case "easy":
+				this.speed = 0.5;
+				break;
+			case "meduim":
+				this.speed = 1;
+				break;
+
+			case "hard":
+				this.speed = 2;
+				break;
 		}
 	}
 
 	move(){
+		this.checkGameLevel();
 		// this.movement();
 		if(this.size < 200){
-			this.size+=0.5;
+			this.size+=this.speed;
 		} else {
 			this.startFly()
 		}
@@ -109,7 +113,36 @@ class Ball {
 		return image;
 	}
 	draw(){
+		this.rotate++;
+		// this.game.ctx.rotate(this.rotate * Math.PI / 180);
+		// this.game.ctx.translate(this.x, this.y);
 		this.game.ctx.drawImage(this.source,this.x,this.y, this.size, this.size);
+		// this.game.ctx.translate(0,0);
+		// this.game.ctx.rotate(-(this.rotate * Math.PI / 180));
+	}
+}
+
+class Message {
+	constructor(game){
+		this.game = game;
+		this.x = game.ball.x;
+		this.y = game.ball.y;
+		this.source = this.load('images/10.png');
+		this.opacity = 0.5;
+		// this.game.ctx.globalAlpha = 0.2;
+	}
+
+	load(path){
+		let image = new Image();
+		image.src = path;
+		return image;
+	}
+
+	draw(){
+		this.opacity-=0.1;
+		this.game.ctx.globalAlpha = this.opacity;
+		this.game.ctx.drawImage(this.source,this.x,this.y, this.source.width, this.source.height);
+		this.game.ctx.globalAlpha = 1.0;
 	}
 }
 
@@ -123,10 +156,57 @@ class Game {
 		this.ball = new Ball(this);
 		this.hands = new Hands(this);
 		this.background = new Background(this);
+		this.message = new Message(this);
 		this.movement = false;
 		this.saves = 0;
+		this.saveStatus = false;
+		this.maxTime = 15;
+		this.level = 'easy';
+		this.player = "Test name";		
+		this.storage = localStorage;
+		if(this.storage.players == undefined) {
+			this.storage.players = JSON.stringify([]);
+		}
+		this.players = JSON.parse(this.storage.players);
 		this.draw();
+		this.bindEvents();
+		this.setBackgroundSound();
 	}
+
+	setBackgroundSound(){
+		this.backgroundSound = new Audio();
+		this.backgroundSound.src = "audio/background.mp3";
+
+		this.backgroundSound.addEventListener('ended', ev=>{
+			this.backgroundSound.currentTime = 0;
+			this.backgroundSound.play();
+		});
+	}
+
+	playBackground(){
+		this.backgroundSound.currentTime = 3;
+		this.backgroundSound.play();
+	}
+
+	stopBackground(){
+		this.backgroundSound.pause();	
+	}
+
+	playChute(){
+		let audio = new Audio();
+		audio.src = "audio/chute.wav";
+		audio.play();
+	}
+	playGoal(){
+		let audio = new Audio();
+		audio.src = "audio/goal.mp3";
+		audio.play();
+	}
+	playFinal(){
+		let audio = new Audio();
+		audio.src = "audio/final.wav";
+		audio.play();
+	}	
 
 	draw(){
 		setInterval(_=>{
@@ -135,11 +215,130 @@ class Game {
 			this.background.draw();
 			if(this.movement) {
 				this.ball.move();
+				this.ball.draw();
+
+				// if(this.saveStatus) {
+				// 	let message = new Message(this);
+				// 	message.draw();
+				// 	if(message.opacity < 0){
+				// 		this.saveStatus = false;
+				// 		message = {};
+				// 	}
+				// }
 			}
-			this.ball.draw();
 			this.hands.draw();
 			this.collisions();	
 		},60/1000);
+	}
+
+	startTimer(){
+		let time = qs(".time");
+		this.timer = setInterval(_=>{
+			if(this.maxTime > 0){
+				this.maxTime--;
+				time.innerHTML = `Time: 0:${this.maxTime}s`;	
+			} else {
+				statScreen.classList.toggle("hidden");
+				this.stopMovements();
+			}
+		}, 1000);
+	}
+
+	sortUsers(a,b){
+		return b.score-a.score;
+	}
+
+	savePlayersInStorage(){
+		this.storage.players = JSON.stringify(this.players);
+	}
+
+	savePlayer(){
+		let createNew = true;
+		this.players.forEach(obj=>{
+			if(obj.name == this.player){
+				createNew = false;
+				obj.score = this.saves,
+				obj.level = this.level
+			}
+		});
+		if(createNew){
+			let user = {
+				name: this.player,
+				score: this.saves,
+				level : this.level
+			}
+			this.players.push(user);
+		}
+		this.players.sort(this.sortUsers);
+		this.savePlayersInStorage(this.players);
+	}
+
+	changePoints(){
+		this.saveStatus = true;
+		let score = qs('.score');
+		score.innerHTML = `${this.saves}/200`;
+	}
+
+	showTableScore(){
+		let res = qs(".results");
+		res.innerHTML = "";
+		for(let player of this.players){
+			res.innerHTML += `<p>${player.name} - ${player.score}</p>`;
+		}
+	}
+
+	bindEvents(){
+		qs("#firstScreen .start img").addEventListener('click', ev=>{
+			firstScreen.classList.toggle("hidden");
+			secondScreen.classList.toggle("hidden");
+		});
+
+		qsa("#secondScreen .level").forEach(level=>{
+			level.addEventListener('click', ev=>{
+				if(qs("#secondScreen input").value != ""){
+					this.player = qs("#secondScreen input").value;
+					console.log(ev.target.dataset.level, this.player);
+					this.level = ev.target.dataset.level;
+					qs(".name").innerHTML = this.player;
+					secondScreen.classList.toggle("hidden");
+					this.startMovements();	
+				} else {
+					alert("Enter your name");
+				}
+			});	
+		});
+
+		restart.addEventListener('click', ev=>{
+			statScreen.classList.toggle("hidden");
+			firstScreen.classList.toggle("hidden");
+			this.ball.size = 0;
+			this.changePoints();
+		});
+	}
+
+	startMovements(){
+		this.playBackground();
+		this.startTimer();
+		this.movement = true;
+	}
+
+	saveAnimation5points(){
+
+	}
+
+	saveAnimation10points(){
+		
+	}
+
+	stopMovements(){
+		this.stopBackground();
+		this.playFinal();
+		this.savePlayer();
+		this.showTableScore();
+		clearInterval(this.timer);
+		this.maxTime = 15;
+		this.saves = 0;
+		this.movement = false;
 	}
 
 	collisions(){
@@ -155,6 +354,8 @@ class Game {
 		let ballY1 = this.ball.y;
 		let ballY2 = this.ball.y+this.ball.size;
 
+		let goal = true;
+
 		if(	//Check X
 			handsX1 < ballX1 &&
 			handsX1 < ballX2 &&
@@ -169,7 +370,10 @@ class Game {
 			this.ball.size < 121
 		){
 			// TODO: Счет +10
-			this.saves++;
+			goal = false;
+			this.playChute();
+			this.saves+=10;
+			this.changePoints();
 			this.ball.startFly();
 			console.log(this.saves);
 		}
@@ -187,10 +391,36 @@ class Game {
 			this.ball.size > 121
 		){
 			// TODO: Счет +5
-			this.saves++;
+			goal = false;
+			this.playChute();
+			this.saves+=5;
+			this.changePoints();
 			this.ball.startFly();
 			console.log(this.saves);
 		}
+
+
+		if(this.level == 'easy') {
+			if(goal && this.ball.size > 121 && this.ball.size < 122){
+				console.log(this.level);
+				this.playGoal();	
+			}
+		}
+
+		if(this.level == 'meduim') {
+			if(goal && this.ball.size > 121 && this.ball.size < 123){
+				console.log(this.level);
+				this.playGoal();	
+			}
+		}
+
+		if(this.level == 'hard') {
+			if(goal && this.ball.size > 121 && this.ball.size < 125){
+				console.log(this.level);
+				this.playGoal();	
+			}
+		}
+
 	}
 }
 

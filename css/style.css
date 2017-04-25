@@ -10,3 +10,133 @@ body {
   justify-content: center;
   align-items: center;
 }
+
+* {
+  box-sizing: border-box;
+}
+
+#firstScreen,#secondScreen,#statScreen {
+  position: absolute;
+  display: flex;
+  width: 1000px;
+  height: 700px;
+  background: rgba(0,0,0,0.5);
+  flex-flow: column wrap;
+  justify-content: center;
+  align-items: center;
+}
+
+canvas {
+  cursor: none;
+}
+
+#gameZone {
+  position: absolute;
+  display: flex;
+  width: 1000px;
+  height: 700px;
+  flex-flow: row wrap;
+  padding: 30px;
+  justify-content: space-between;
+  align-items: flex-start;
+  z-index: 3;
+  background: none;
+}
+
+#gameZone .score, #gameZone .timer{
+  display: inline-flex;
+  padding: 20px;
+  flex-flow: row wrap;
+  justify-content: space-between;
+  width: auto;
+  font-size: 20px;
+  background: #000;
+  color: white;
+  border-radius: 5px;
+}
+
+#gameZone .timer .name {
+  margin-left: 30px;
+}
+
+#firstScreen {
+  z-index: 10;
+}
+
+#secondScreen {
+  z-index: 9;
+}
+
+#statScreen {
+  z-index: 9;
+}
+
+.hidden {
+   display: none !important;
+}
+
+#secondScreen .blackBorder {
+  display: inline-flex;
+  background: #fff;
+  flex-flow: column wrap;
+  width: auto;
+  border: 20px solid #000;
+}
+
+#secondScreen input {
+  display: inline-block;
+  width: 100%;
+  padding: 20px 20px;
+  font-size: 20px;
+}
+
+#secondScreen .levels {
+  display: flex;
+  justify-content: space-between;
+  color: white;
+  background: #a9a3a4;
+  font-size: 20px;
+}
+
+#secondScreen .levels .level {
+  padding: 20px 40px;
+  cursor: pointer;
+  opacity: 0.7;
+}
+
+#secondScreen .levels .level:hover {
+  opacity: 1;
+}
+
+#secondScreen .levels .level:nth-child(2) {
+  border-right: 1px solid #fff;
+  border-left: 1px solid #fff;
+}
+
+
+#statScreen .blackBorder {
+  display: inline-flex;
+  background: #fff;
+  flex-flow: column wrap;
+  width: auto;
+  border: 20px solid #000;
+}
+
+#statScreen .results {
+  background: #a9a3a4;
+  color: white;
+  font-size: 22px;
+  padding: 10px 20px;
+}
+
+#statScreen .input {
+  background: #fff;
+  color: #a9a3a4;
+  font-size: 22px;
+  padding: 20px 20px;
+}
+
+#statScreen .restart {
+  margin-top: 20px;
+}
+

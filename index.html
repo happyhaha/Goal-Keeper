@@ -6,7 +6,55 @@
 	<link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-	<canvas id="game" width="1000" height="500"></canvas>
+
+	<div id="gameZone">
+		<div class="score">
+			0/200
+		</div>
+		<div class="timer">
+			<div class="time">Time: 0:15s</div>
+			<div class="name">Vitaly Govor</div>
+		</div>
+	</div>
+
+	<div id="firstScreen" class="screen">
+		<div class="logo">
+			<img src="images/logo.png" alt="logo">
+		</div>
+		<div class="start">
+			<img src="images/start.png" alt="start">
+		</div>
+	</div>
+
+	<div id="secondScreen" class="screen hidden">
+		<div class="blackBorder">
+			<div class="input">
+				<input type="text" placeholder="Enter your name">
+			</div>
+			<div class="levels">
+				<div class="level" data-level="easy">Easy</div>
+				<div class="level" data-level="meduim">Meduim</div>
+				<div class="level" data-level="hard">Hard</div>
+			</div>
+		</div>
+	</div>
+
+	<div id="statScreen" class="screen hidden">
+		<div class="blackBorder">
+			<div class="input">
+				Ranking
+			</div>
+			<div class="results">
+				
+			</div>
+		</div>
+		<div class="restart">
+			<img src="images/restart.png" id="restart" alt="restart">
+		</div>
+	</div>
+
+
+	<canvas id="game" width="1000" height="700"></canvas>
 	<script src="js/app.js"></script>
 </body>
 </html>
